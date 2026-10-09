@@ -115,7 +115,7 @@
     .chart-wrap {
       position: relative;
       overflow: hidden;
-      min-height: 680px;
+      min-height: 700px;
       border-radius: 16px;
       background: linear-gradient(180deg, rgba(236,242,255,0.7), rgba(255,255,255,0.3));
       border: 1px solid var(--border);
@@ -124,26 +124,27 @@
     .chart-wrap svg {
       width: 100%;
       height: 100%;
-      min-height: 680px;
+      min-height: 700px;
       display: block;
+      overflow: visible;
     }
 
     .link {
-      stroke: var(--line);
-      stroke-width: 1.2;
+      stroke: rgba(103, 118, 148, 0.8);
+      stroke-width: 1.8;
       stroke-linecap: round;
       fill: none;
-      stroke-dasharray: 7 8;
+      stroke-dasharray: 8 10;
       animation: flow 2.5s linear infinite;
-      opacity: 0.85;
+      opacity: 0.9;
     }
 
     .node rect {
-      rx: 12;
-      ry: 12;
-      stroke-width: 1.5;
-      stroke: #dfe9f8;
-      fill: rgba(255,255,255,0.96);
+      rx: 14;
+      ry: 14;
+      stroke-width: 1.7;
+      stroke: rgba(95, 116, 184, 0.75);
+      fill: rgba(249, 251, 255, 0.96);
       transition: all 0.2s ease;
     }
 
@@ -153,8 +154,8 @@
     }
 
     .node text {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
       fill: var(--text);
       text-anchor: middle;
       pointer-events: none;
@@ -162,8 +163,8 @@
 
     .node .subtext {
       fill: var(--muted);
-      font-size: 10px;
-      font-weight: 500;
+      font-size: 9.5px;
+      font-weight: 600;
     }
 
     .pulse {
@@ -231,11 +232,112 @@
       border: 1px solid rgba(83, 98, 125, 0.3);
     }
 
+    .swatch.low { background: rgba(59,130,246,0.15); }
+    .swatch.mid { background: rgba(59,130,246,0.45); }
+    .swatch.high { background: rgba(59,130,246,0.8); }
+
+    .matrix-wrap {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      padding: 12px;
+    }
+
+    #heatmapTable {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 6px;
+      table-layout: fixed;
+      min-width: 640px;
+    }
+
+    #heatmapTable th,
+    #heatmapTable td {
+      text-align: center;
+      font-size: 12px;
+      color: #344256;
+      border-radius: 8px;
+      height: 54px;
+    }
+
+    .corner,
+    .row-label,
+    .top-label {
+      background: rgba(255,255,255,0.4);
+      border: 1px solid var(--border);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .corner {
+      width: 110px;
+      text-align: left;
+      padding-left: 12px;
+    }
+
+    .top-label {
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      padding: 6px 4px;
+    }
+
+    .row-label {
+      width: 110px;
+      text-align: left;
+      padding-left: 12px;
+    }
+
+    .heat-cell {
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+    }
+
     .notes {
       margin-top: 12px;
       font-size: 12.5px;
       line-height: 1.6;
       color: var(--muted);
+    }
+
+    .detail-box {
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.6);
+      padding: 14px;
+    }
+
+    .detail-title {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .detail-value {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .detail-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .detail-list li {
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.5);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 13px;
+      color: #2b3748;
     }
 
     @media (max-width: 980px) {
@@ -254,18 +356,20 @@
     <div class="topbar">
       <div>
         <div class="eyebrow">Executive analytics</div>
-        <h1>Full KPI Correlation Map</h1>
-        <div class="sub">Animated view of the complete executive influence network.</div>
+        <h1>Executive KPI Heatmap</h1>
+        <div class="sub">Directional relationship intensity across the full executive landscape.</div>
       </div>
       <div class="actions">
         <a class="button" href="index.html">Back to explorer</a>
-        <button class="button primary" id="replay">Replay animation</button>
+        <button class="button primary" id="replay">Refresh view</button>
       </div>
     </div>
 
     <section class="layout">
       <div class="panel chart-wrap">
-        <svg id="network" viewBox="0 0 1000 700" role="img" aria-label="Animated KPI correlation map"></svg>
+        <div class="matrix-wrap">
+          <table id="heatmapTable" aria-label="Executive KPI heatmap"></table>
+        </div>
       </div>
 
       <aside class="panel">
@@ -285,12 +389,19 @@
         </div>
 
         <div class="legend">
-          <div class="legend-item"><span class="swatch" style="background: rgba(82,117,255,0.65);"></span> Active influence flow</div>
-          <div class="legend-item"><span class="swatch" style="background: rgba(37,99,235,0.14);"></span> KPI node</div>
+          <div class="legend-item"><span class="swatch low"></span> Low</div>
+          <div class="legend-item"><span class="swatch mid"></span> Moderate</div>
+          <div class="legend-item"><span class="swatch high"></span> High</div>
         </div>
 
         <div class="notes">
-          This map shows the full conceptual relationship model across executive functions. The network is intentionally directional and exploratory rather than a validated statistical correlation model.
+          This heatmap aggregates directional KPI relationships by executive function. Cells represent the number of conceptual influence links from one function to another, helping highlight the most connected parts of the portfolio.
+        </div>
+
+        <div class="detail-box" id="detailBox">
+          <div class="detail-title">Selected relationship</div>
+          <div class="detail-value" id="detailValue">Click a cell to inspect</div>
+          <ul class="detail-list" id="detailList"></ul>
         </div>
       </aside>
     </section>
@@ -339,96 +450,93 @@
       }
     });
 
-    function buildLayout() {
-      const width = 1000;
-      const height = 700;
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const radius = 215;
-      const layout = {};
-      const totalGroups = groups.length;
+    const functions = groups.map(([code]) => code);
+    const matrix = Object.fromEntries(
+      functions.map((row) => [row, Object.fromEntries(functions.map((col) => [col, 0]))])
+    );
 
-      groups.forEach(([code, department, names], index) => {
-        const angle = (Math.PI * 2 * index) / totalGroups - Math.PI / 2;
-        const center = {
-          x: centerX + Math.cos(angle) * 150,
-          y: centerY + Math.sin(angle) * 170
-        };
+    raw.forEach(([source, target]) => {
+      const sourceGroup = groups.find(([, , items]) => items.includes(source))?.[0];
+      const targetGroup = groups.find(([, , items]) => items.includes(target))?.[0];
+      if (!sourceGroup || !targetGroup || sourceGroup === targetGroup) return;
+      matrix[sourceGroup][targetGroup] += 1;
+    });
 
-        names.forEach((name, itemIndex) => {
-          const ringAngle = (Math.PI * 2 * itemIndex) / names.length - Math.PI / 2;
-          const x = center.x + Math.cos(ringAngle) * (names.length > 5 ? 68 : 72);
-          const y = center.y + Math.sin(ringAngle) * 70;
-          layout[name] = { x, y };
+    function getCellColor(value, max) {
+      if (value === 0) return 'rgba(148, 163, 184, 0.03)';
+      const opacity = 0.12 + (value / max) * 0.8;
+      return `rgba(59, 130, 246, ${opacity})`;
+    }
+
+    function getRelationshipPairs(source, target) {
+      const sourceKpis = groups.find((group) => group[0] === source)?.[2] || [];
+      const targetKpis = groups.find((group) => group[0] === target)?.[2] || [];
+      const results = [];
+
+      raw.forEach(([from, to]) => {
+        if (sourceKpis.includes(from) && targetKpis.includes(to)) {
+          results.push(`${from} → ${to}`);
+        }
+      });
+
+      return results.slice(0, 6);
+    }
+
+    function setDetail(source, target, count) {
+      const detailValue = document.getElementById('detailValue');
+      const detailList = document.getElementById('detailList');
+      detailValue.textContent = `${source} → ${target} (${count})`;
+
+      const pairs = getRelationshipPairs(source, target);
+      detailList.innerHTML = pairs.length
+        ? pairs.map((pair) => `<li>${pair}</li>`).join('')
+        : '<li>No direct relationship links in this pair.</li>';
+    }
+
+    function renderHeatmap() {
+      const table = document.getElementById('heatmapTable');
+      const max = Math.max(...Object.values(matrix).flatMap((row) => Object.values(row)), 1);
+
+      let html = '<thead><tr><th class="corner">Function</th>';
+      functions.forEach((func) => {
+        html += `<th class="top-label">${func}</th>`;
+      });
+      html += '</tr></thead><tbody>';
+
+      functions.forEach((row) => {
+        html += `<tr><th class="row-label">${row}</th>`;
+        functions.forEach((col) => {
+          const count = matrix[row][col];
+          const label = count === 0 ? '' : count;
+          html += `<td class="heat-cell" data-row="${row}" data-col="${col}" style="background:${getCellColor(count, max)};" title="${row} → ${col}: ${count} links">${label}</td>`;
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody>';
+      table.innerHTML = html;
+
+      table.querySelectorAll('.heat-cell').forEach((cell) => {
+        cell.addEventListener('click', () => {
+          const row = cell.dataset.row;
+          const col = cell.dataset.col;
+          const count = matrix[row][col];
+          if (count > 0) {
+            setDetail(row, col, count);
+          } else {
+            setDetail(row, col, 0);
+          }
         });
       });
 
-      return { width, height, layout, centerX, centerY, radius };
+      setDetail('CFO', 'COO', matrix.CFO.COO || 0);
     }
 
-    function renderNetwork() {
-      const svg = document.getElementById('network');
-      const { width, height, layout } = buildLayout();
-      const linkMarkup = [];
-      const nodeMarkup = [];
-
-      links.forEach(({ source, target }) => {
-        const a = layout[source];
-        const b = layout[target];
-        if (!a || !b) return;
-
-        const midX = (a.x + b.x) / 2;
-        const midY = (a.y + b.y) / 2;
-
-        linkMarkup.push(`
-          <path class="link" d="M ${a.x} ${a.y} Q ${midX} ${midY - 12} ${b.x} ${b.y}" />
-        `);
-      });
-
-      nodes.forEach(({ name, code }) => {
-        const pos = layout[name];
-        if (!pos) return;
-        const label = name.length > 18 ? `${name.slice(0, 16)}…` : name;
-        const widthText = Math.max(100, label.length * 6.8);
-        const x = pos.x - widthText / 2;
-        const y = pos.y - 18;
-
-        nodeMarkup.push(`
-          <g class="node pulse" transform="translate(${pos.x}, ${pos.y})">
-            <rect x="${-widthText / 2}" y="-18" width="${widthText}" height="38" fill="rgba(255,255,255,0.96)" stroke="rgba(77,101,180,0.55)" />
-            <text y="-1" x="0">${label}</text>
-            <text class="subtext" y="14" x="0">${code}</text>
-          </g>
-        `);
-      });
-
-      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-      svg.innerHTML = `
-        <defs>
-          <radialGradient id="bgGlow" cx="50%" cy="50%" r="70%">
-            <stop offset="0%" stop-color="rgba(255,255,255,0.2)" />
-            <stop offset="100%" stop-color="rgba(255,255,255,0.0)" />
-          </radialGradient>
-        </defs>
-        <rect width="1000" height="700" fill="transparent"></rect>
-        ${linkMarkup.join('')}
-        ${nodeMarkup.join('')}
-      `;
-    }
-
-    document.getElementById('replay').addEventListener('click', () => {
-      const svg = document.getElementById('network');
-      svg.classList.remove('animated');
-      void svg.offsetWidth;
-      svg.classList.add('animated');
-      renderNetwork();
-    });
-
+    document.getElementById('replay').addEventListener('click', renderHeatmap);
     document.getElementById('totalKpis').textContent = nodes.length;
     document.getElementById('totalLinks').textContent = links.length;
-    document.getElementById('totalFunctions').textContent = groups.length;
-
-    renderNetwork();
+    document.getElementById('totalFunctions').textContent = functions.length;
+    renderHeatmap();
   </script>
 </body>
 </html>

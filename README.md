@@ -1,22 +1,41 @@
-# KPI Influence Explorer
+# Executive KPI Influence Dashboard
 
-A lightweight single-page dashboard for exploring directional, conceptual relationships between executive KPIs across business functions.
+A static HTML dashboard for exploring directional, conceptual relationships between executive KPIs across business functions.
 
 ## Overview
 
-This project presents a browser-based KPI influence map for leadership teams. It allows users to:
+This project is designed for leadership and strategy teams who want to explore how executive KPIs may influence one another across functional areas such as finance, operations, technology, security, marketing, HR, and procurement.
 
-- search for a KPI by name
-- filter by executive function
-- view upstream and downstream KPI relationships
-- inspect a local network diagram of the selected KPI
-- rank KPIs by connectivity and influence patterns
+The application is intentionally lightweight and deployment-friendly:
 
-The page is implemented in plain HTML, CSS, and JavaScript and does not require a build step or external dependencies.
+- it uses plain HTML, CSS, and vanilla JavaScript
+- it has no build step or package installation
+- it works well as a GitHub Pages static site
 
-## What the project does
+## Included views
 
-The dashboard models a set of executive KPIs grouped by functions such as:
+### 1. KPI Influence Explorer
+The main page in [index.html](index.html) provides:
+
+- KPI search by name
+- filtering by executive function
+- incoming and outgoing relationship lists
+- a local influence network around the selected KPI
+- a ranking view for the most connected KPIs
+- a conceptual model note clarifying that these are not measured causal claims
+
+### 2. Full Correlation / Heatmap View
+The secondary page in [correlation.html](correlation.html) provides:
+
+- a full executive-level relationship matrix
+- animated directional flow styling
+- a function-by-function heatmap of relationship intensity
+- click-to-drill-down detail for selected function pairs
+- a side panel showing the underlying KPI relationships behind each cell
+
+## Data model
+
+The project models a set of executive KPIs grouped into eight functions:
 
 - Finance
 - Operations
@@ -27,20 +46,22 @@ The dashboard models a set of executive KPIs grouped by functions such as:
 - Human Resources
 - Procurement
 
-It then builds a simple directed graph where arrows point from an influencing KPI to a KPI it may affect. This is intentionally framed as a conceptual model for exploration, not as statistical proof or causal validation.
+The relationships are directional and conceptual. They are intended for exploration, discussion, and portfolio-level storytelling rather than statistical proof.
 
 ## Files in this project
 
-- [index.html](index.html) — the full application including layout, styles, and dashboard logic
+- [index.html](index.html) — main executive KPI explorer dashboard
+- [correlation.html](correlation.html) — full heatmap and animated correlation view
 - [README.md](README.md) — project documentation
 
-## How to run it
+## How to run locally
 
-Because this is a static HTML application, you can run it in either of these ways:
+Because this is a static site, you can run it with any local web server.
 
-1. Open [index.html](index.html) directly in a browser.
-2. Or serve the folder locally:
+### Option 1: Open directly
+Open [index.html](index.html) in a browser.
 
+### Option 2: Serve locally
 ```bash
 cd /home/andrewsjohnsamuel/Projects/c-suite-kpis
 python3 -m http.server 8000
@@ -52,18 +73,29 @@ Then open:
 http://localhost:8000
 ```
 
-## Main dashboard features
+## GitHub Pages
 
-- KPI search and filtering
-- Function-based selection
-- Incoming and outgoing influence lists
-- Interactive relationship network
-- Ranking view for most connected KPIs
-- Conceptual caveat displayed in-page to discourage unsupported conclusions
+This project is suitable for GitHub Pages because it is a static frontend with no dependency installation or build pipeline.
+
+Typical setup:
+
+1. Push the repository to GitHub
+2. In the repository settings, enable GitHub Pages
+3. Use the root folder or the project folder as the published source
+4. Open the generated GitHub Pages URL
+
+## Main use cases
+
+This dashboard is useful for:
+
+- executive workshop exploration
+- leadership discussions about KPI dependencies
+- strategic portfolio mapping
+- prototyping relationship views before connecting to live data
 
 ## Important note
 
-This dashboard is designed for strategic discussion and exploratory analysis. The relationships are hypotheses and should be validated with KPI owners, historical performance data, and business context before making decisions.
+The relationships shown are hypotheses for discussion, not measured correlations or definitive cause-and-effect evidence. They should be validated with KPI owners, historical trends, and business context before using them for decisions.
 
 ## Technology stack
 
@@ -71,11 +103,9 @@ This dashboard is designed for strategic discussion and exploratory analysis. Th
 - CSS3
 - Vanilla JavaScript
 
-## Intended use
+## Example workflow
 
-This project is useful for:
-
-- executive workshop exploration
-- KPI architecture discussions
-- leadership narratives around business dependencies
-- prototyping a dashboard concept before integrating real data sources
+1. Open the KPI explorer and search for a metric
+2. Review upstream and downstream drivers
+3. Switch to the full heatmap view for high-level function-to-function patterns
+4. Click a heatmap cell to inspect the specific KPI pairs behind that relationship

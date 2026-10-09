@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Full KPI Correlation View</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --panel: rgba(255,255,255,0.9);
+      --card: #ffffff;
+      --border: #dfe7f1;
+      --muted: #607089;
+      --text: #1f2937;
+      --accent: #2d5bdb;
+      --accent-soft: #e8efff;
+      --line: rgba(91, 108, 135, 0.6);
+      --shadow: 0 18px 40px rgba(25, 45, 82, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(71, 113, 223, 0.15), transparent 28%),
+        linear-gradient(180deg, #eef4ff 0%, var(--bg) 100%);
+      font-family: Inter, "Segoe UI", sans-serif;
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 20px 36px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0 0;
+      font-size: clamp(26px, 4vw, 40px);
+      letter-spacing: -0.04em;
+    }
+
+    .sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill, .button {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.8);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .button:hover, .pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(59,95,197,0.1);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(260px, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.78);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      backdrop-filter: blur(6px);
+    }
+
+    .chart-wrap {
+      position: relative;
+      overflow: hidden;
+      min-height: 680px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(236,242,255,0.7), rgba(255,255,255,0.3));
+      border: 1px solid var(--border);
+    }
+
+    .chart-wrap svg {
+      width: 100%;
+      height: 100%;
+      min-height: 680px;
+      display: block;
+    }
+
+    .link {
+      stroke: var(--line);
+      stroke-width: 1.2;
+      stroke-linecap: round;
+      fill: none;
+      stroke-dasharray: 7 8;
+      animation: flow 2.5s linear infinite;
+      opacity: 0.85;
+    }
+
+    .node rect {
+      rx: 12;
+      ry: 12;
+      stroke-width: 1.5;
+      stroke: #dfe9f8;
+      fill: rgba(255,255,255,0.96);
+      transition: all 0.2s ease;
+    }
+
+    .node:hover rect {
+      stroke: var(--accent);
+      fill: #eef4ff;
+    }
+
+    .node text {
+      font-size: 12px;
+      font-weight: 600;
+      fill: var(--text);
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .node .subtext {
+      fill: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .pulse {
+      animation: pulse 2.8s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    @keyframes flow {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -120; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.9; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.04); }
+    }
+
+    .stats {
+      display: grid;
+      gap: 12px;
+      margin-top: 0;
+    }
+
+    .metric {
+      background: rgba(255,255,255,0.72);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .metric .value {
+      margin-top: 8px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+    }
+
+    .legend {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .swatch {
+      width: 22px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      background: rgba(83, 98, 125, 0.6);
+      border: 1px solid rgba(83, 98, 125, 0.3);
+    }
+
+    .notes {
+      margin-top: 12px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-wrap, .chart-wrap svg {
+        min-height: 560px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="topbar">
+      <div>
+        <div class="eyebrow">Executive analytics</div>
+        <h1>Full KPI Correlation Map</h1>
+        <div class="sub">Animated view of the complete executive influence network.</div>
+      </div>
+      <div class="actions">
+        <a class="button" href="index.html">Back to explorer</a>
+        <button class="button primary" id="replay">Replay animation</button>
+      </div>
+    </div>
+
+    <section class="layout">
+      <div class="panel chart-wrap">
+        <svg id="network" viewBox="0 0 1000 700" role="img" aria-label="Animated KPI correlation map"></svg>
+      </div>
+
+      <aside class="panel">
+        <div class="stats">
+          <div class="metric">
+            <div class="label">Total KPIs</div>
+            <div class="value" id="totalKpis">0</div>
+          </div>
+          <div class="metric">
+            <div class="label">Influence links</div>
+            <div class="value" id="totalLinks">0</div>
+          </div>
+          <div class="metric">
+            <div class="label">Functions</div>
+            <div class="value" id="totalFunctions">0</div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item"><span class="swatch" style="background: rgba(82,117,255,0.65);"></span> Active influence flow</div>
+          <div class="legend-item"><span class="swatch" style="background: rgba(37,99,235,0.14);"></span> KPI node</div>
+        </div>
+
+        <div class="notes">
+          This map shows the full conceptual relationship model across executive functions. The network is intentionally directional and exploratory rather than a validated statistical correlation model.
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const groups = [
+      ['CFO', 'Finance', ['Revenue Growth', 'Gross Margin', 'Operating Profit', 'Free Cash Flow', 'Cost Efficiency', 'ROI', 'Working Capital']],
+      ['COO', 'Operations', ['Operational Efficiency', 'Process Cycle Time', 'On-Time Delivery Rate', 'Operating Margin', 'Defect Rate', 'Employee Productivity']],
+      ['CTO', 'Technology', ['Reliability', 'Development Velocity', 'Deployment Frequency', 'Mean Time to Recovery', 'Security Incident Rate', 'Deliverable Predictability']],
+      ['CISO', 'Security', ['Number of Security Incidents', 'Time to Detect', 'Patch Compliance Rate', 'Security Training', 'Incident Response Rate', 'Vulnerability Closure Rate']],
+      ['CIO', 'IT', ['IT System Uptime', 'Project Delivery on Budget', 'On Schedule', 'User Satisfaction Rate', 'Cost Per Ticket Resolved', 'New System Adoption Rate']],
+      ['CMO', 'Marketing', ['Customer Acquisition Cost', 'Customer Lifetime Value', 'Conversion Rate', 'Marketing ROI', 'Brand Awareness Growth']],
+      ['CHRO', 'Human Resources', ['Employee Engagement Score', 'Voluntary Turnover Rate', 'Time to Fill Open Roles', 'Retention of Top Performers', 'Training Completion Rate', 'Diversity Representation Metrics']],
+      ['CPO', 'Procurement', ['Procurement On-Time Delivery', 'Procurement Savings', 'Procurement Cycle Time', 'Supply Chain Efficiency', 'Product Quality', 'Procurement Defect Rates']]
+    ];
+
+    const raw = [
+      ['Revenue Growth', 'Gross Margin'], ['Revenue Growth', 'Operating Profit'], ['Gross Margin', 'Operating Profit'], ['Operating Profit', 'Free Cash Flow'], ['Cost Efficiency', 'Gross Margin'], ['Cost Efficiency', 'Operating Profit'], ['Cost Efficiency', 'ROI'], ['Working Capital', 'Free Cash Flow'], ['Working Capital', 'Cost Efficiency'], ['ROI', 'Revenue Growth'], ['Customer Lifetime Value', 'ROI'], ['Marketing ROI', 'ROI'], ['Procurement Savings', 'Cost Efficiency'], ['Operating Margin', 'Operating Profit'],
+      ['Operational Efficiency', 'Cost Efficiency'], ['Operational Efficiency', 'Operating Margin'], ['Operational Efficiency', 'Process Cycle Time'], ['Process Cycle Time', 'On-Time Delivery Rate'], ['On-Time Delivery Rate', 'User Satisfaction Rate'], ['On-Time Delivery Rate', 'Supply Chain Efficiency'], ['Defect Rate', 'Product Quality'], ['Defect Rate', 'Cost Efficiency'], ['Defect Rate', 'User Satisfaction Rate'], ['Employee Productivity', 'Operational Efficiency'], ['Employee Productivity', 'On-Time Delivery Rate'], ['Employee Productivity', 'Operating Margin'], ['Product Quality', 'Customer Lifetime Value'],
+      ['Reliability', 'IT System Uptime'], ['Reliability', 'User Satisfaction Rate'], ['Development Velocity', 'Deployment Frequency'], ['Development Velocity', 'Deliverable Predictability'], ['Deployment Frequency', 'Deliverable Predictability'], ['Deployment Frequency', 'Security Incident Rate'], ['Mean Time to Recovery', 'Reliability'], ['Mean Time to Recovery', 'IT System Uptime'], ['Security Incident Rate', 'Reliability'], ['Deliverable Predictability', 'On Schedule'], ['Deliverable Predictability', 'Project Delivery on Budget'],
+      ['Number of Security Incidents', 'Security Incident Rate'], ['Number of Security Incidents', 'User Satisfaction Rate'], ['Time to Detect', 'Mean Time to Recovery'], ['Time to Detect', 'Number of Security Incidents'], ['Patch Compliance Rate', 'Vulnerability Closure Rate'], ['Patch Compliance Rate', 'Security Incident Rate'], ['Security Training', 'Training Completion Rate'], ['Security Training', 'Security Incident Rate'], ['Incident Response Rate', 'Mean Time to Recovery'], ['Vulnerability Closure Rate', 'Security Incident Rate'], ['Vulnerability Closure Rate', 'Reliability'],
+      ['IT System Uptime', 'User Satisfaction Rate'], ['IT System Uptime', 'Employee Productivity'], ['Project Delivery on Budget', 'Operating Margin'], ['On Schedule', 'On-Time Delivery Rate'], ['Cost Per Ticket Resolved', 'Cost Efficiency'], ['Cost Per Ticket Resolved', 'User Satisfaction Rate'], ['New System Adoption Rate', 'Employee Productivity'], ['New System Adoption Rate', 'User Satisfaction Rate'], ['New System Adoption Rate', 'ROI'],
+      ['Customer Acquisition Cost', 'Marketing ROI'], ['Customer Acquisition Cost', 'ROI'], ['Customer Lifetime Value', 'Marketing ROI'], ['Conversion Rate', 'Marketing ROI'], ['Conversion Rate', 'Customer Acquisition Cost'], ['Brand Awareness Growth', 'Conversion Rate'], ['Brand Awareness Growth', 'Customer Acquisition Cost'], ['User Satisfaction Rate', 'Customer Lifetime Value'], ['User Satisfaction Rate', 'Brand Awareness Growth'],
+      ['Employee Engagement Score', 'Employee Productivity'], ['Employee Engagement Score', 'Voluntary Turnover Rate'], ['Employee Engagement Score', 'Retention of Top Performers'], ['Voluntary Turnover Rate', 'Employee Productivity'], ['Voluntary Turnover Rate', 'Time to Fill Open Roles'], ['Time to Fill Open Roles', 'Employee Productivity'], ['Retention of Top Performers', 'Employee Productivity'], ['Training Completion Rate', 'Employee Productivity'], ['Training Completion Rate', 'Development Velocity'], ['Diversity Representation Metrics', 'Employee Engagement Score'], ['Diversity Representation Metrics', 'Retention of Top Performers'],
+      ['Procurement On-Time Delivery', 'On-Time Delivery Rate'], ['Procurement On-Time Delivery', 'Supply Chain Efficiency'], ['Procurement Savings', 'ROI'], ['Procurement Cycle Time', 'Supply Chain Efficiency'], ['Procurement Cycle Time', 'Cost Efficiency'], ['Supply Chain Efficiency', 'On-Time Delivery Rate'], ['Supply Chain Efficiency', 'Working Capital'], ['Supply Chain Efficiency', 'Procurement Savings'], ['Product Quality', 'Customer Lifetime Value'], ['Procurement Defect Rates', 'Product Quality'], ['Procurement Defect Rates', 'Cost Efficiency'], ['Procurement Defect Rates', 'On-Time Delivery Rate']
+    ];
+
+    const nodes = [];
+    const byName = {};
+    groups.forEach(([code, department, names]) => {
+      names.forEach((name) => {
+        const node = { name, code, department };
+        nodes.push(node);
+        byName[name] = node;
+      });
+    });
+
+    const links = [];
+    const seen = new Set();
+    raw.forEach(([source, target]) => {
+      const key = `${source}>${target}`;
+      if (byName[source] && byName[target] && !seen.has(key)) {
+        seen.add(key);
+        links.push({ source, target });
+      }
+    });
+
+    function buildLayout() {
+      const width = 1000;
+      const height = 700;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = 215;
+      const layout = {};
+      const totalGroups = groups.length;
+
+      groups.forEach(([code, department, names], index) => {
+        const angle = (Math.PI * 2 * index) / totalGroups - Math.PI / 2;
+        const center = {
+          x: centerX + Math.cos(angle) * 150,
+          y: centerY + Math.sin(angle) * 170
+        };
+
+        names.forEach((name, itemIndex) => {
+          const ringAngle = (Math.PI * 2 * itemIndex) / names.length - Math.PI / 2;
+          const x = center.x + Math.cos(ringAngle) * (names.length > 5 ? 68 : 72);
+          const y = center.y + Math.sin(ringAngle) * 70;
+          layout[name] = { x, y };
+        });
+      });
+
+      return { width, height, layout, centerX, centerY, radius };
+    }
+
+    function renderNetwork() {
+      const svg = document.getElementById('network');
+      const { width, height, layout } = buildLayout();
+      const linkMarkup = [];
+      const nodeMarkup = [];
+
+      links.forEach(({ source, target }) => {
+        const a = layout[source];
+        const b = layout[target];
+        if (!a || !b) return;
+
+        const midX = (a.x + b.x) / 2;
+        const midY = (a.y + b.y) / 2;
+
+        linkMarkup.push(`
+          <path class="link" d="M ${a.x} ${a.y} Q ${midX} ${midY - 12} ${b.x} ${b.y}" />
+        `);
+      });
+
+      nodes.forEach(({ name, code }) => {
+        const pos = layout[name];
+        if (!pos) return;
+        const label = name.length > 18 ? `${name.slice(0, 16)}…` : name;
+        const widthText = Math.max(100, label.length * 6.8);
+        const x = pos.x - widthText / 2;
+        const y = pos.y - 18;
+
+        nodeMarkup.push(`
+          <g class="node pulse" transform="translate(${pos.x}, ${pos.y})">
+            <rect x="${-widthText / 2}" y="-18" width="${widthText}" height="38" fill="rgba(255,255,255,0.96)" stroke="rgba(77,101,180,0.55)" />
+            <text y="-1" x="0">${label}</text>
+            <text class="subtext" y="14" x="0">${code}</text>
+          </g>
+        `);
+      });
+
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.innerHTML = `
+        <defs>
+          <radialGradient id="bgGlow" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.2)" />
+            <stop offset="100%" stop-color="rgba(255,255,255,0.0)" />
+          </radialGradient>
+        </defs>
+        <rect width="1000" height="700" fill="transparent"></rect>
+        ${linkMarkup.join('')}
+        ${nodeMarkup.join('')}
+      `;
+    }
+
+    document.getElementById('replay').addEventListener('click', () => {
+      const svg = document.getElementById('network');
+      svg.classList.remove('animated');
+      void svg.offsetWidth;
+      svg.classList.add('animated');
+      renderNetwork();
+    });
+
+    document.getElementById('totalKpis').textContent = nodes.length;
+    document.getElementById('totalLinks').textContent = links.length;
+    document.getElementById('totalFunctions').textContent = groups.length;
+
+    renderNetwork();
+  </script>
+</body>
+</html>
